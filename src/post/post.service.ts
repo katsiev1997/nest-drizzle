@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE } from 'src/drizzle/drizzle.module';
 import { DrizzleDB } from 'src/drizzle/types/drizzle';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { eq } from 'drizzle-orm';
+import { posts } from 'src/drizzle/schema/posts.schema';
 
 @Injectable()
 export class PostService {
@@ -14,6 +17,7 @@ export class PostService {
   async findAll() {
     // return await this.db.select().from(posts);
     return await this.db.query.posts.findMany({
+      where: (posts, { eq }) => eq(posts.id, 20),
       with: {
         author: {
           with: {
@@ -32,8 +36,13 @@ export class PostService {
     return `This action returns a #${id} post`;
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: number, updatePostDto: UpdatePostDto) {
+    return await this.db
+      .update(posts)
+      .set({
+        title: 'AAAAAAA',
+      })
+      .where(eq(posts.id, id));
   }
 
   remove(id: number) {
