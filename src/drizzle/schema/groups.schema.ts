@@ -7,13 +7,14 @@ import {
   text,
 } from 'drizzle-orm/pg-core';
 import { users } from './users.schema';
+import { relations } from 'drizzle-orm';
 
 export const groups = pgTable('groups', {
   id: serial('id').primaryKey(),
   name: text('title').notNull(),
 });
 
-export const user_to_groups = pgTable(
+export const usersToGroups = pgTable(
   'user_to_groups',
   {
     userId: integer('user_id').references(() => users.id),
@@ -24,3 +25,14 @@ export const user_to_groups = pgTable(
     userIdIndex: index('user_id_idx').on(table.userId),
   }),
 );
+
+export const usersToGrupsRelations = relations(usersToGroups, ({ one }) => ({
+  user: one(users, {
+    fields: [usersToGroups.userId],
+    references: [users.id],
+  }),
+  group: one(groups, {
+    fields: [usersToGroups.groupId],
+    references: [groups.id],
+  }),
+}));
